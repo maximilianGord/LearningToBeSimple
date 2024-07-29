@@ -1,22 +1,50 @@
-from sage.all import *
+#from sage.all import *
 import numpy as np
-print("hello")
+from itertools import chain
+#python generat permutations
+def generateRandomPermutations(numberOf, order):
+    """
+        creates numberOf permutations with given order
+    """
+    permutations = np.zeros((numberOf,order))
+    for i in range(0,numberOf):
+        indexlist = [i for i in range(order)]
+        len_list = order
+        for j in range(0, order):
+            k = np.random.randint(0,len_list)
+            permutations[i,j]=indexlist[k]
+            len_list = len_list - 1
+            indexlist.remove(indexlist[k])
+    ppermutations = np.unique(permutations, axis=0)
+    return ppermutations
 
-G = PermutationGroup(['(1,2,3)(4,5)', '(3,4)'])
-
-n=6
-s=5
-permutations = np.zeros((s,n))
-for i in range(0,s):
-    #permutation = np.array([0 for i in range(n)])
-    indexlist = [i for i in range(n)]
-    len_list = n
-    for j in range(0, n):
-       k = np.random.randint(0,len_list)
-       permutations[i,j]=indexlist[k]
-       len_list = len_list - 1
-       indexlist.remove(indexlist[k])
-
-ppermutations = np.unique(permutations, axis=0)
+#  list(PermutationGroup([['b','c','a']], domain=['a','b','c']))
+# [(), ('a','b','c'), ('a','c','b')]
+def convertPermutation(order):
+    """
+        converts a permutationrepresentation to the one that is accepted by sageMath 
+        e.g. [2 3 1], which sends 1 --> 2, 2 --> 3 , 3 --> 1 to the representation (1 2 3)
+    """
+    permutation = np.array([2,1,0,4,3])
+    generator = []
+    index = 0 
+    cycle = [index]
+    first = 0 # remembers the beginning of a cycle
+    for i in range(order):
+        if permutation[index] == first:
+            generator.append(cycle)
+            new_start = np.random.randint(order)
+            rest_list = list(chain.from_iterable(generator))
+            while new_start in rest_list and len(rest_list)!=order :
+                new_start = np.random.randint(order)
+            first = new_start
+            index = new_start
+            cycle = [index]
+        else:
+            cycle.append(permutation[index])
+            index = permutation[index]
+    for i in range(len(generator)):
+        generator[i] = tuple(generator[i]) 
+def permutationToMatrix(permutation):
     
 
