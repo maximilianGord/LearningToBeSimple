@@ -2,8 +2,6 @@
 import numpy as np
 from itertools import chain
 
-
-
 #python generat permutations
 def generateRandomPermutations(numberOf, order):
     """
