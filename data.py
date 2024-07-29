@@ -61,13 +61,3 @@ def createPermutationMatrix(permutation):
 
 
 
-# list(simpletest(
-# 	list((map
-# 		(lambda ro: convertPermutation(10,ro),
-# 	 	generateRandomPermutations(50,10))))))
-#convertPermutation(generateRandomPermutations(50,10))
-print(list((map
-  	(lambda ro: convertPermutation(ro),
-  	generateRandomPermutations(50,10)))))
-#function = lambda ro: convertPermutation(ro)
-#function(generateRandomPermutations(50,20))
