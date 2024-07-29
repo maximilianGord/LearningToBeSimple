@@ -28,6 +28,7 @@ def convertPermutation(permutation):
         e.g. [2 3 1], which sends 1 --> 2, 2 --> 3 , 3 --> 1 to the representation (1 2 3)
 
     """
+    order = len(permutation)
     generator = []
     index = 0 
     cycle = [index]
@@ -40,17 +41,17 @@ def convertPermutation(permutation):
             while new_start in rest_list and len(rest_list)!=order :
                 new_start = np.random.randint(order)
             first = new_start
-            index = new_start
+            index = int(new_start)
             cycle = [index]
         else:
             cycle.append(permutation[index])
-            index = permutation[index]
+            index = int(permutation[index])
     for i in range(len(generator)):
         generator[i] = tuple(generator[i]) 
     return generator
 
-def simpletest(perms):
-	return (map (lambda pi: PermutationGroup(pi).is_simple(), perms)) 
+# def simpletest(perms):
+# 	return (map (lambda pi: PermutationGroup(pi).is_simple(), perms)) 
 def createPermutationMatrix(permutation):
     order = len(permutation)
     p_matrix =  np.zeros((order,order))
@@ -60,7 +61,13 @@ def createPermutationMatrix(permutation):
 
 
 
-list(simpletest(
-	list((map
-		(lambda ro: convertPermutation(10,ro),
-	 	generateRandomPermutations(50,10))))))
+# list(simpletest(
+# 	list((map
+# 		(lambda ro: convertPermutation(10,ro),
+# 	 	generateRandomPermutations(50,10))))))
+#convertPermutation(generateRandomPermutations(50,10))
+print(list((map
+  	(lambda ro: convertPermutation(ro),
+  	generateRandomPermutations(50,10)))))
+#function = lambda ro: convertPermutation(ro)
+#function(generateRandomPermutations(50,20))
