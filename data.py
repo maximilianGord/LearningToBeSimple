@@ -1,6 +1,7 @@
-#from sage.all import *
+from sage.all import *
 import numpy as np
 from itertools import chain
+import pandas as pd
 
 #python generat permutations
 def generateRandomPermutations(numberOf, order):
@@ -50,8 +51,6 @@ def convertPermutation(permutation):
         generator[i] = tuple(generator[i]) 
     return generator
 
-# def simpletest(perms):
-# 	return (map (lambda pi: PermutationGroup(pi).is_simple(), perms)) 
 def createPermutationMatrix(permutation):
     order = len(permutation)
     p_matrix =  np.zeros((order,order))
@@ -59,5 +58,17 @@ def createPermutationMatrix(permutation):
         p_matrix[i,permutation[i]]=1
     return p_matrix
 
+def simpletest(perms):
+	return list((map (lambda pi: PermutationGroup(pi).is_simple(), perms)))
+
+preperms = list((map
+              	    (lambda ro: convertPermutation(ro),
+              	    generateRandomPermutations(6,4))
+                ))
+preperms_df = pd.DataFrame(preperms, columns = ['X','y'])
+preperms_df.to_csv()
 
 
+mathpermssimple =  simpletest(preperms)
+
+print(mathpermssimple)
