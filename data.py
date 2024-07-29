@@ -21,7 +21,7 @@ def generateRandomPermutations(numberOf, order):
 
 #  list(PermutationGroup([['b','c','a']], domain=['a','b','c']))
 # [(), ('a','b','c'), ('a','c','b')]
-def convertPermutation(order,permutation):
+def convertPermutation(permutation):
     """
         Input e.g. permutation = np.array([2,1,0,4,3])
         converts a permutationrepresentation to the one that is accepted by sageMath 
@@ -51,6 +51,14 @@ def convertPermutation(order,permutation):
 
 def simpletest(perms):
 	return (map (lambda pi: PermutationGroup(pi).is_simple(), perms)) 
+def createPermutationMatrix(permutation):
+    order = len(permutation)
+    p_matrix =  np.zeros((order,order))
+    for i in range(order):
+        p_matrix[i,permutation[i]]=1
+    return p_matrix
+
+
 
 list(simpletest(
 	list((map
