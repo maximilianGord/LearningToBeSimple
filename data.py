@@ -20,12 +20,13 @@ def generateRandomPermutations(numberOf, order):
 
 #  list(PermutationGroup([['b','c','a']], domain=['a','b','c']))
 # [(), ('a','b','c'), ('a','c','b')]
-def convertPermutation(order):
+def convertPermutation(order,permutation):
     """
+        Input e.g. permutation = np.array([2,1,0,4,3])
         converts a permutationrepresentation to the one that is accepted by sageMath 
         e.g. [2 3 1], which sends 1 --> 2, 2 --> 3 , 3 --> 1 to the representation (1 2 3)
+
     """
-    permutation = np.array([2,1,0,4,3])
     generator = []
     index = 0 
     cycle = [index]
@@ -45,6 +46,6 @@ def convertPermutation(order):
             index = permutation[index]
     for i in range(len(generator)):
         generator[i] = tuple(generator[i]) 
-def permutationToMatrix(permutation):
-    
+    return generator
+
 
