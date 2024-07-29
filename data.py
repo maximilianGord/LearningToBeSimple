@@ -1,4 +1,4 @@
-#from sage.all import *
+from sage.all import *
 import numpy as np
 from itertools import chain
 
@@ -50,8 +50,6 @@ def convertPermutation(permutation):
         generator[i] = tuple(generator[i]) 
     return generator
 
-# def simpletest(perms):
-# 	return (map (lambda pi: PermutationGroup(pi).is_simple(), perms)) 
 def createPermutationMatrix(permutation):
     order = len(permutation)
     p_matrix =  np.zeros((order,order))
@@ -59,15 +57,14 @@ def createPermutationMatrix(permutation):
         p_matrix[i,permutation[i]]=1
     return p_matrix
 
+def simpletest(perms):
+	return list((map (lambda pi: PermutationGroup(pi).is_simple(), perms)))
 
+preperms = list((map
+              	    (lambda ro: convertPermutation(ro),
+              	    generateRandomPermutations(6,4))
+                ))
 
-# list(simpletest(
-# 	list((map
-# 		(lambda ro: convertPermutation(10,ro),
-# 	 	generateRandomPermutations(50,10))))))
-#convertPermutation(generateRandomPermutations(50,10))
-print(list((map
-  	(lambda ro: convertPermutation(ro),
-  	generateRandomPermutations(50,10)))))
-#function = lambda ro: convertPermutation(ro)
-#function(generateRandomPermutations(50,20))
+mathpermssimple =  simpletest(preperms)
+
+print(mathpermssimple)
