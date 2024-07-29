@@ -1,6 +1,9 @@
 #from sage.all import *
 import numpy as np
 from itertools import chain
+
+
+
 #python generat permutations
 def generateRandomPermutations(numberOf, order):
     """
@@ -48,4 +51,10 @@ def convertPermutation(order,permutation):
         generator[i] = tuple(generator[i]) 
     return generator
 
+def simpletest(perms):
+	return (map (lambda pi: PermutationGroup(pi).is_simple(), perms)) 
 
+list(simpletest(
+	list((map
+		(lambda ro: convertPermutation(10,ro),
+	 	generateRandomPermutations(50,10))))))
