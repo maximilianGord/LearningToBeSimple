@@ -65,12 +65,15 @@ preperms = list((map
               	    (lambda ro: convertPermutation(ro),
               	    generateRandomPermutations(6,4))
                 ))
-preperms_df = pd.DataFrame(preperms, columns = ['X'])
+print(preperms)
+print(len(preperms))
+print()
+preperms_df = pd.DataFrame({'X':preperms})
 
 
 mathpermssimple =  simpletest(preperms)
 
-preperms['y'] = mathpermssimple
-preperms_df.to_csv()
+preperms_df['y'] = mathpermssimple
+preperms_df.to_csv('data_1.csv')
 
 print(mathpermssimple)
