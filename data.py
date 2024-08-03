@@ -1,6 +1,6 @@
 from sage.all import *
 import numpy as np
-from itertools import chain
+from itertools import chain,combinations
 import pandas as pd
 
 #python generat permutations
@@ -57,23 +57,27 @@ def createPermutationMatrix(permutation):
     for i in range(order):
         p_matrix[i,permutation[i]]=1
     return p_matrix
+#g1 = PermutationGroup([[3,1,2,0],[0,2,1,3]], domain=[0,1,2,3])
+#g1 = PermutationGroup([array([0., 2., 3., 1.]), array([0., 3., 2., 1.])], domain=[0,1,2,3])
 
-def simpletest(perms):
-	return list((map (lambda pi: PermutationGroup(pi).is_simple(), perms)))
-
-preperms = list((map
-              	    (lambda ro: convertPermutation(ro),
-              	    generateRandomPermutations(6,4))
-                ))
-print(preperms)
-print(len(preperms))
-print()
-preperms_df = pd.DataFrame({'X':preperms})
+def simpletest(cperms):
+	return list((map (lambda pi: PermutationGroup(pi,domain = list(range(len(pi[0])))).is_simple(), cperms)))
 
 
-mathpermssimple =  simpletest(preperms)
 
-preperms_df['y'] = mathpermssimple
-preperms_df.to_csv('data_1.csv')
+# preperms = list((map
+#               	    (lambda ro: convertPermutation(ro),
+#               	    generateRandomPermutations(6,4))
+#                 ))
+single_generators = generateRandomPermutations(6,4)
+combined_generators = list(combinations(single_generators,2))
+combined_generators = [[list(elem[0]),list(elem[1])] for elem in combined_generators]
 
-print(mathpermssimple)
+combined_generators_df = pd.DataFrame({'X':combined_generators})
+print(len(combined_generators))
+print(combined_generators)
+mathpermssimple =  simpletest(combined_generators)
+
+combined_generators_df['y'] = mathpermssimple
+combined_generators_df.to_csv('data_1.csv')
+
