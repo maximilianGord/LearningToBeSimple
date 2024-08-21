@@ -80,16 +80,16 @@ def getDataLoader(dataframe):
     y = torch.tensor(y,dtype=torch.int64)
     print(X)
     print(y)
-    loader = DataLoader(list(zip(X,y)),shuffle=True,batch_size=16)
-    return loader 
+    #loader = DataLoader(list(zip(X,y)),shuffle=True,batch_size=16)
+    return list(zip(X,y)) 
 
 
 
 # preperms = list((map
 #               	    (lambda ro: convertPermutation(ro),
-#               	    generateRandomPermutations(6,4))
+#               	    generateRandomPermutations(9,4))
 #                 ))
-# single_generators = generateRandomPermutations(6,4)
+# single_generators = generateRandomPermutations(18,5)
 # combined_generators = list(combinations(single_generators,2))
 # combined_generators = [[list(elem[0]),list(elem[1])] for elem in combined_generators]
 
@@ -99,6 +99,7 @@ def getDataLoader(dataframe):
 # combined_generators_df['y'] = mathpermssimple
 # combined_generators_df.to_csv('data_1.csv')
 combined_generators_df = pd.read_csv('data_1.csv')
-getDataLoader(combined_generators_df)
+result = getDataLoader(combined_generators_df)
+print(result)
 
 
