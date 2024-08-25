@@ -18,37 +18,42 @@ simple_indices = combined_generators_df.loc[combined_generators_df.y==True].inde
 size_simple = len(simple_indices)
 size_df = len(combined_generators_df.index)
 size_not_simple = size_df-size_simple
-print(size_simple)
+print("Raw number of simple groups : "+str(size_simple))
 #make sure the whole Dataset is balanced
 residual = size_not_simple%4
+# We want to split the data into 1/5 simple and 4/5 nonsimple or in other words we split 1:4. Before that we have to make the number divisible 
 if residual!=0:
     size_not_simple -= residual
     size_df         -= residual
-    combined_generators_df = combined_generators_df[np.random.choice(
+    combined_generators_df = combined_generators_df.loc[pd.Index(np.random.choice(
         combined_generators_df.loc[combined_generators_df.y==False].index,size=size_not_simple,replace=False
-    )] 
+    )).append(combined_generators_df.loc[combined_generators_df.y==True].index).sort_values()] 
+# If to many simple groups : remove some simple groups and keep the non simple
 if size_simple>size_not_simple/4:
-    size_df -=(size_simple-size_not_simple/4)
-    size_simple = size_not_simple/4
-    combined_generators_df = combined_generators_df[np.random.choice(
-        combined_generators_df.loc[combined_generators_df.y==True].index,size=size_not_simple,replace=False
-    )] 
+    size_df -=(size_simple-int(size_not_simple/4))
+    size_simple = int(size_not_simple/4)
+    combined_generators_df = combined_generators_df.loc[pd.Index(np.random.choice(
+        combined_generators_df.loc[combined_generators_df.y==True].index,size=size_simple,replace=False
+    )).append(combined_generators_df.loc[combined_generators_df.y==False].index).sort_values()] 
+# If to many non simple groups : remove some non simple groups and keep the simple
 else:
     size_df -= (size_not_simple-size_simple*4)
     size_not_simple = size_simple*4
-    combined_generators_df = combined_generators_df[np.random.choice(
+    combined_generators_df = combined_generators_df.loc[pd.Index(np.random.choice(
         combined_generators_df.loc[combined_generators_df.y==False].index,size=size_not_simple,replace=False
-    )]
-
+    )).append(combined_generators_df.loc[combined_generators_df.y==True].index).sort_values()]
+print("Processed number of simple groups : "+str(size_simple)+" and processed size of data : "+str(size_df))
 train_data = getDataLoader(combined_generators_df)
 order = 5
 # Define Model and Train Function, use optimised number of hidden layers from Paper
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.hidden_layer = nn.Linear(2*order**2,2)
+        self.hidden_layer = nn.Linear(2*order**2,256)
+        self.output_layer = nn.Linear(256,2)
     def forward(self, x):
         x = nn.functional.relu(self.hidden_layer(x))
+        x = self.output_layer(x)
         return nn.functional.softmax(x,dim=1)
 # Define the training function
 def train(model, device, train_loader, optimizer, epoch):
@@ -56,7 +61,7 @@ def train(model, device, train_loader, optimizer, epoch):
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
-        output = model(data)
+        output = model(data.to(torch.float32))
         loss = nn.functional.cross_entropy(output, target)
         loss.backward()
         optimizer.step()
@@ -64,14 +69,14 @@ k_folds = 5
 batch_size = 50
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 skf = StratifiedKFold(n_splits=k_folds, shuffle=True)
-for fold, (train_idx, test_idx) in enumerate(skf.split(train_data)):
+for fold, (train_idx, test_idx) in enumerate(skf.split(train_data[0],train_data[1])):
     train_loader = DataLoader(
-        dataset=train_data,
+        dataset=list(zip(train_data[0],train_data[1])),
         batch_size=batch_size,
         sampler=torch.utils.data.SubsetRandomSampler(train_idx),
     )
     test_loader = DataLoader(
-        dataset=train_data,
+        dataset=list(zip(train_data[0],train_data[1])),
         batch_size=batch_size,
         sampler=torch.utils.data.SubsetRandomSampler(test_idx),
     )
@@ -85,7 +90,7 @@ for fold, (train_idx, test_idx) in enumerate(skf.split(train_data)):
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
-            output = model(data)
+            output = model(data.to(torch.float32))
             test_loss += nn.functional.cross_entropy(output, target, reduction="sum").item()
             pred = output.argmax(dim=1, keepdim=True)
             correct += pred.eq(target.view_as(pred)).sum().item()

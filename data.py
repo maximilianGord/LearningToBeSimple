@@ -81,7 +81,8 @@ def getDataLoader(dataframe):
     print(X)
     print(y)
     #loader = DataLoader(list(zip(X,y)),shuffle=True,batch_size=16)
-    return list(zip(X,y)) 
+    #return list(zip(X,y))
+    return (X,y) 
 
 
 
@@ -89,7 +90,7 @@ def getDataLoader(dataframe):
 #               	    (lambda ro: convertPermutation(ro),
 #               	    generateRandomPermutations(9,4))
 #                 ))
-# single_generators = generateRandomPermutations(18,5)
+# single_generators = generateRandomPermutations(60,5)
 # combined_generators = list(combinations(single_generators,2))
 # combined_generators = [[list(elem[0]),list(elem[1])] for elem in combined_generators]
 
@@ -98,8 +99,8 @@ def getDataLoader(dataframe):
 
 # combined_generators_df['y'] = mathpermssimple
 # combined_generators_df.to_csv('data_1.csv')
-combined_generators_df = pd.read_csv('data_1.csv')
-result = getDataLoader(combined_generators_df)
-print(result)
+# combined_generators_df = pd.read_csv('data_1.csv')
+#result = getDataLoader(combined_generators_df)
+#print(result)
 
 
