@@ -2,6 +2,7 @@ from data import getDataLoader
 import torch
 import numpy as np
 from itertools import chain,combinations
+from sklearn.metrics import confusion_matrix
 import pandas as pd
 import ast
 import torch
@@ -38,7 +39,7 @@ if size_simple>size_not_simple/4:
 # If to many non simple groups : remove some non simple groups and keep the simple
 else:
     size_df -= (size_not_simple-size_simple*4)
-    size_not_simple = size_simple*4
+    size_not_simple = size_simple*4 
     combined_generators_df = combined_generators_df.loc[pd.Index(np.random.choice(
         combined_generators_df.loc[combined_generators_df.y==False].index,size=size_not_simple,replace=False
     )).append(combined_generators_df.loc[combined_generators_df.y==True].index).sort_values()]
@@ -62,11 +63,11 @@ def train(model, device, train_loader, optimizer, epoch):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data.to(torch.float32))
-        loss = nn.functional.cross_entropy(output, target)
+        loss = nn.functional.mse_loss(output.argmax(dim=1, keepdim=True).flatten().float(), target)
         loss.backward()
         optimizer.step()
 k_folds = 5
-batch_size = 50
+batch_size = 100
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 skf = StratifiedKFold(n_splits=k_folds, shuffle=True)
 for fold, (train_idx, test_idx) in enumerate(skf.split(train_data[0],train_data[1])):
@@ -87,17 +88,35 @@ for fold, (train_idx, test_idx) in enumerate(skf.split(train_data[0],train_data[
     model.eval()
     test_loss = 0
     correct = 0
+    all_preds=[]
+    all_targets=[]
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data.to(torch.float32))
-            test_loss += nn.functional.cross_entropy(output, target, reduction="sum").item()
+            test_loss += nn.functional.mse_loss(output.argmax(dim=1, keepdim=True).flatten().float(), target,reduction='sum').item()
             pred = output.argmax(dim=1, keepdim=True)
+            all_preds.extend(pred.view_as(target).tolist())
+            all_targets.extend(target.tolist())
             correct += pred.eq(target.view_as(pred)).sum().item()
+            #print(pred.eq(target.view_as(pred)).sum().item()/len(target))
+    #all_preds=np.array(all_preds)
+    #all_targets=np.array(all_targets)
+    cm=confusion_matrix(all_targets,all_preds)
+    TP = cm[1, 1]  # True Positives
+    TN = cm[0, 0]  # True Negatives
+    FP = cm[0, 1]  # False Positives
+    FN = cm[1, 0]  # False Negatives
 
-    test_loss /= len(test_loader.dataset)
-    accuracy = 100.0 * correct / len(test_loader.dataset)
-    print(f"Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({accuracy:.2f}%)\n")
+    # Print individual counts
+    print("------------- Fold : {fold}-------------")
+    print(f"True Positives (TP): {TP}")
+    print(f"True Negatives (TN): {TN}")
+    print(f"False Positives (FP): {FP}")
+    print(f"False Negatives (FN): {FN}")
+    test_loss /= len(test_idx)
+    accuracy = 100.0 * correct / len(test_idx)
+    print(f"Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_idx)} ({accuracy:.2f}%)\n")
 
 
 

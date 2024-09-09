@@ -1,6 +1,6 @@
 #from sage.all import *
 import numpy as np
-from itertools import chain,combinations
+from itertools import chain,combinations,permutations
 import pandas as pd
 import ast
 import torch
@@ -22,6 +22,8 @@ def generateRandomPermutations(numberOf, order):
             indexlist.remove(indexlist[k])
     ppermutations = np.unique(permutations, axis=0)
     return ppermutations
+def generateAllPermutations(order):
+    return np.array(list(permutations(list(range(0,order)))))
 
 #  list(PermutationGroup([['b','c','a']], domain=['a','b','c']))
 # [(), ('a','b','c'), ('a','c','b')]
@@ -64,6 +66,12 @@ def flattenPermMatrix(pMatrix):
     return pMatrix.flatten()
 def simpletest(cperms):
 	return list((map (lambda pi: PermutationGroup(pi,domain = list(range(len(pi[0])))).is_simple(), cperms)))
+def getAllSubgroups(n):
+    symGroup = SymmetricGroup(n)
+    subgroups=symGroup.subgroups()
+    subgroups_as_gens=pd.DataFrame([subG.gens() for subG in subgroups])
+    
+    return subgroups_as_gens
 def getDataLoader(dataframe):
     X_raw = np.array(dataframe['X'].values)
     X_raw = [elem[1:-1] for elem in X_raw]
@@ -102,5 +110,18 @@ def getDataLoader(dataframe):
 # combined_generators_df = pd.read_csv('data_1.csv')
 #result = getDataLoader(combined_generators_df)
 #print(result)
+#result_df = getAllSubgroups(5)
+#result_df.to_csv('data_2.csv')
+# single_generators = generateAllPermutations(5)
+# print(single_generators)
+# combined_generators = list(combinations(single_generators,2))
+# print(combined_generators[0])
+# combined_generators = [[list(elem[0]),list(elem[1])] for elem in combined_generators]
 
+# combined_generators_df = pd.DataFrame({'X':combined_generators})
+# mathpermssimple =  simpletest(combined_generators)
+
+# combined_generators_df['y'] = mathpermssimple
+# combined_generators_df.to_csv('data_1.csv')
+# combined_generators_df = pd.read_csv('data_1.csv')
 
